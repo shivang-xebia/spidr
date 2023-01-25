@@ -137,36 +137,80 @@ export default defineComponent({
       ],
     };
 
-    return { projectedGrowthData, impliedMarketShareData, optionsimpliedMarketShare, optionsprojectedGrowth };
+    const historicActualData = {
+      labels: ['Oct21 to Dec21','Nov21 to Jan22','Dec21 to Feb22','Jan22 to Mar22','Feb22 to Apr22','Mar22 to May22','Apr22 to Jun22','May22 to Jul22','Jun22 to Aug22','Jul22 to Sep22','Aug22 to Oct22'],
+      datasets: [
+        {
+          data: [31,21,8,13,9,12,-3,13,9,12,-3],
+          backgroundColor: '#570EAA',
+          label:'Internal'
+        },
+        {
+          data: [36,25,18,15,25,16,8,15,25,16,8],
+          backgroundColor: '#8737E1',
+          label: 'Forecast'
+        },
+        {
+          data: [24,16,11,11,14,18,12,11,14,18,12],
+          backgroundColor: '#B991EB',
+          label:'Actual'
+        },
+      ],
+    };
+    const optionhistoricActual = {
+      responsive: true,
+      plugins: {
+        legend: {
+            position: 'bottom',
+            display:true,
+            align:'start',
+            fullSize:true,
+            labels: {
+                usePointStyle: true,
+                boxWidth: 10,
+                font: {
+                        size: 10
+                    }
+            }
+        },
+        title: {
+          display: true,
+          text: 'Historic vs Actuals (%, YoY)',
+        },
+      },
+      scales: {
+       		x: {
+          		ticks: {
+              	display: false
+              },
+              grid: {
+                  display: false,
+                  drawOnChartArea: false,
+                  drawBorder: false,
+               }
+          },
+          y: {
+            suggestedMin: 0,
+            suggestedMax: 30,
+          		ticks: {
+              	display: false
+              },
+              grid: {
+                  drawBorder: false,
+               }
+          }
+       },
+    };
+
+    return { projectedGrowthData, impliedMarketShareData, optionsimpliedMarketShare, optionsprojectedGrowth, historicActualData, optionhistoricActual };
   },
 });
 </script>
 <template>
-    <v-card>
-          <v-row>
-            <v-col cols="12" sm="6">
-              <div class="pl-3">
-                <h5>Projected Period</h5>
-                <h3>Nov 22 - Jan 23</h3>
-                <span>1-3 Month Lag</span>
-              </div>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <div class="text-right pr-2">
-                <span>No Action</span>
-                <span style="
-width: 15px;
-height: 15px;
-display: inline-block;
-border-radius: 12px;
-background: #0BBD1D;"></span>
-                
-              </div>
-              
-            </v-col>
-          </v-row>
-          
-          <v-row>
+    <v-container>
+        <v-row>
+            <v-col cols="12" sm="4">
+                <v-row>
             <v-col
             cols="12"
             sm="6"
@@ -180,5 +224,16 @@ background: #0BBD1D;"></span>
           <BarChart :chartData="impliedMarketShareData" :height="195" :width="180" :options="optionsimpliedMarketShare" />
         </v-col>
           </v-row>
-          </v-card>
+            </v-col>
+            <v-col cols="12" sm="8" style="overflow-x:auto; white-space: nowrap;">
+              <v-sheet
+    class="mx-auto"
+    max-width="700"
+
+  >
+        <BarChart :chartData="historicActualData" :height="195" :options="optionhistoricActual" />
+  </v-sheet>
+            </v-col>
+        </v-row>
+    </v-container>
 </template>

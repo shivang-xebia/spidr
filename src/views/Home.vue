@@ -1,5 +1,13 @@
 <template>
 <v-container>
+  <v-row>
+    <v-col cols="12" sm="9">
+      <h3>Demand Planner Dashboard</h3>
+    </v-col>
+    <v-col cols="12" sm="3">
+      <span>Last refreshed on 30 Nov 2022</span>
+    </v-col>
+  </v-row>
   <v-card class="mb-3">
   <v-row>
       <v-col
@@ -68,7 +76,7 @@
             <v-switch label="Volume"></v-switch>  
             </v-col>
             <v-col cols="12"
-            sm="6" class="align-middle">
+            sm="6" class="text-right">
             <span>Clear Filters</span>  
           </v-col>
           </v-row>
