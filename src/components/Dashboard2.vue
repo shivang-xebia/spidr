@@ -1,6 +1,6 @@
 <script>
 
-import HeatMap from '@/components/Common/HeatMap.vue';
+import HeatMap from './HeatMap.vue';
 import { defineComponent } from 'vue';
 
 export default defineComponent({

@@ -1,11 +1,15 @@
 <script>
 import { GChart } from 'vue-google-charts'
+import {onBeforeMount, ref} from "vue";
+import {invokeApi} from "../spidr/src/idpUtils";
 
 export default {
   components: {
     GChart
   },
   setup() {
+    const chartDataLoaded = ref(false);
+    const apiData = ref([]);
     const chartData = [
         ['Year','Market Sensing','Internal'],
         ['2022',32,25],
@@ -43,18 +47,18 @@ export default {
 
       const columnChartData = [
       ['Year', 'Market Sensing', 'Internal', 'Actual', 'Adjusted Internal'],
-      ['Nov21 - Jan22',31,36,24,32],
-      ['Dec21 - Feb22',21,25,16,20],
-      ['Jan22 - Mar22',8,18,11,14],
-      ['Feb22 - Apr22',17,27,9,16],
-      ['Mar22 - May22',9,25,14,13],
-      ['Apr22 - Jun22',12,29,24,32],
-      ['May22 - Jul22',17,25,21,13],
-      ['Jun22 - Aug22',23,12,19,32],
-      ['Jul22 - Sep22',9,36,12,22],
-      ['Aug22 - Oct22',13,31,14,12],
-      ['Sep22 - Nov22',18,36,34,22],
-      ['Oct22 - Dec22',10,32,21,35],
+      ["Nov21 - Jan22",31,36,24,32],
+      ["Dec21 - Feb22",21,25,16,20],
+      ["Jan22 - Mar22",8,18,11,14],
+      ["Feb22 - Apr22",17,27,9,16],
+      ["Mar22 - May22",9,25,14,13],
+      ["Apr22 - Jun22",12,29,24,32],
+      ["May22 - Jul22",17,25,21,13],
+      ["Jun22 - Aug22",23,12,19,32],
+      ["Jul22 - Sep22",9,36,12,22],
+      ["Aug22 - Oct22",13,31,14,12],
+      ["Sep22 - Nov22",18,36,34,22],
+      ["Oct22 - Dec22",10,32,21,35],
       ]
 
       const columnChartOptions= {
@@ -64,12 +68,20 @@ export default {
           colors: ['#570EAA', '#787878', '#C8A5F0', '#F4BE37']
         //}
       }
-      return { chartData, chartOptions, chartOptions1, barChartData, barChartOptions, columnChartData, columnChartOptions}
+
+      onBeforeMount(async () => {
+        apiData.value = await invokeApi('apidatacleint2');
+        console.log(apiData);
+        chartDataLoaded.value = true;
+      });
+      return { chartData, chartOptions, chartOptions1, barChartData, barChartOptions, columnChartData, columnChartOptions, chartDataLoaded, apiData}
   }
 }
 </script>
 <template>
 <v-container>
+  <div v-if="chartDataLoaded === false">Loading...</div>
+  <div v-if="chartDataLoaded === true">Loaded</div>
   <v-card class="mb-3">
   <v-row>
     <v-col cols="12" sm="2">
@@ -140,16 +152,17 @@ export default {
 <v-divider/>
 
   <v-row>
-    <v-col cols="12" sm="3">
-      <v-card>
+    <v-col v-if="!chartDataLoaded"></v-col>
+    <v-col v-else cols="12" sm="3" v-for="data in apiData.projectionsData.projections">
+      <v-card >
         <v-container>
           <v-row>
           <v-col cols="12" sm="6">
             <span style="font-size:14px">Projected Period</span>
-            <h5>Jan 23 - Mar 23</h5>
+            <h5>{{data.period}}</h5>
           </v-col>
           <v-col cols="12" sm="6">
-            <span style="font-size:14px;background: #EDEDED">1-3 Month Lag</span>
+            <span style="font-size:14px;background: #EDEDED">{{data.lag}} Month Lag</span>
           </v-col>
         </v-row>
         <v-divider/>
@@ -157,17 +170,17 @@ export default {
           <v-col cols="12" sm="6">
             <span style="font-family: graphik;font-weight: 500;font-size: 9px;line-height: 18px;">Projected Growth (%, YoY)</span>
             <div>
-              <div class="text-h3" style="color:#FF9900">8%</div>
+              <div class="text-h3" style="color:#FF9900">{{data.marketSensing - data.internal}}</div>
               <span style="font-size:9px">variance</span>
               <v-divider/>
             </div>
             <v-row>
               <v-col cols="12" sm="6">
-                <h3>18%</h3>
+                <h3>{{data.marketSensing}}</h3>
                 <div class="text-caption" style="font-size:9px !important">Market Sensing</div>
               </v-col>
               <v-col cols="12" sm="6">
-                <h3>10%</h3>
+                <h3>{{data.internal}}</h3>
                 <div class="text-caption" style="font-size:9px !important">Internal Forecast</div>
               </v-col>
             </v-row>
@@ -185,7 +198,7 @@ export default {
         </v-container>
       </v-card>
     </v-col>
-    <v-col cols="12" sm="3">
+    <!-- <v-col cols="12" sm="3">
       <v-card>
         <v-container>
           <v-row>
@@ -319,7 +332,7 @@ export default {
         </v-row>
         </v-container>
       </v-card>
-    </v-col>
+    </v-col> -->
   </v-row>
   <v-row>
     <v-col cols="12" sm="4">
