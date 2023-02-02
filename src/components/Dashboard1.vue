@@ -43,6 +43,10 @@ export default {
           }
         //}
       }
+      chartData.value = [
+        ['','Implied','PyActual'],
+        ['',34,28],
+      ]
       const chartOptions1= {
         //chart: {
           //title: 'Implied Market Share',
@@ -50,7 +54,15 @@ export default {
           colors: ['#A5A5A5', '#F8D887']
         //}
       }
-      const barChartData = ref([]);
+      const barChartData  = [
+        ['X','Y'],
+        ['Stock Market',50],
+        ['Inflation',40],
+        ['Per capita disposable income',30],
+        ['Pandemic',18],
+        ['Consumer behaviour',10],
+        ['Loans consumption',5]
+      ];
       const barChartOptions= {
         //chart: {
           //title: 'Implied Market Share',
@@ -108,33 +120,33 @@ export default {
         activeCard.value = ind
       }
       // columnChartData.value.push(['Year', 'Market Sensing', 'Internal', 'Actual']);
-      watch(activeCard, (value) => {
-      //if (value) {
-        console.log(value);
-        let currentCard = apiData.value.projectionsData.projections[value].externalKPIs;
-        let currentCardPy = apiData.value.projectionsData.projections[value].impliedMarketShare;
-        let currentCardHistorical = apiData.value.projectionsData.projections[value].historical;
-        barChartData.value = [
-        ['X','Y'],
-        ['Stock Market',currentCard['Stock market']],
-        ['Inflation',currentCard['Inflation']],
-        ['Per capita disposable income',currentCard['Per-capita disposable income']],
-        ['Pandemic',currentCard['Pandemic']],
-        ['Consumer behaviour',currentCard['Consumer behaviour']],
-        ['Loans consumption',currentCard['Loans consumption']]
-      ]
-      chartData.value = [
-        ['','Implied','PyActual'],
-        ['',currentCardPy['implied'],currentCardPy['pyActual']],
-      ]
-      // columnChartData.value.push(['Year', 'Market Sensing', 'Internal', 'Actual']);
-      // currentCardHistorical.data.foreach((history) => {
-      //   columnChartData.value.push(history);
-      // }) 
-      //columnChartData.value.push(currentCardHistorical.data)
-       //console.log(columnChartData.value);
-      //}
-    });
+    //   watch(activeCard, (value) => {
+    //   //if (value) {
+    //     console.log(value);
+    //     let currentCard = apiData.value.projectionsData.projections[value].externalKPIs;
+    //     let currentCardPy = apiData.value.projectionsData.projections[value].impliedMarketShare;
+    //     let currentCardHistorical = apiData.value.projectionsData.projections[value].historical;
+    //     barChartData.value = [
+    //     ['X','Y'],
+    //     ['Stock Market',currentCard['Stock market']],
+    //     ['Inflation',currentCard['Inflation']],
+    //     ['Per capita disposable income',currentCard['Per-capita disposable income']],
+    //     ['Pandemic',currentCard['Pandemic']],
+    //     ['Consumer behaviour',currentCard['Consumer behaviour']],
+    //     ['Loans consumption',currentCard['Loans consumption']]
+    //   ]
+    //   chartData.value = [
+    //     ['','Implied','PyActual'],
+    //     ['',currentCardPy['implied'],currentCardPy['pyActual']],
+    //   ]
+    //   // columnChartData.value.push(['Year', 'Market Sensing', 'Internal', 'Actual']);
+    //   // currentCardHistorical.data.foreach((history) => {
+    //   //   columnChartData.value.push(history);
+    //   // }) 
+    //   //columnChartData.value.push(currentCardHistorical.data)
+    //    //console.log(columnChartData.value);
+    //   //}
+    // });
 
       return { chartData, chartOptions, chartOptions1, barChartData, barChartOptions, columnChartData, columnChartOptions, chartDataLoaded, apiData, PieChartData, PieChartOptions, colorBtnFunc, colorText, activeCard, activeEl}
   }
