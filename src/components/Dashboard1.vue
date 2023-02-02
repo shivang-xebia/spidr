@@ -34,7 +34,7 @@ export default {
           },
           legend: 'none',
           slices: {
-            0: { color: '#8C8C8C',textStyle : {fontSize:'15px'} },
+            0: { color: '#8C8C8C',textStyle : {color:'transparent'} },
             1: { color: 'transparent', textStyle : {color:'transparent'} }
           },
           chartArea: {
