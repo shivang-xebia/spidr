@@ -11,7 +11,7 @@ export default {
     const chartDataLoaded = ref(false);
     const apiData = ref([]);
     const colorText = ref('');
-    const activeCard = ref(0);
+    const activeCard = ref();
     const chartData = ref([]);
       const chartOptions= {
         //chart: {
@@ -30,10 +30,11 @@ export default {
           pieHole: 0.7,
           pieSliceTextStyle: {
             color: '#8C8C8C',
+            fontSize:'15px'
           },
           legend: 'none',
           slices: {
-            0: { color: '#8C8C8C' },
+            0: { color: '#8C8C8C',textStyle : {fontSize:'15px'} },
             1: { color: 'transparent', textStyle : {color:'transparent'} }
           },
           chartArea: {
@@ -87,6 +88,7 @@ export default {
         apiData.value = await invokeApi('apidatacleint2');
         console.log(apiData);
         chartDataLoaded.value = true;
+        activeCard.value = 0;
       });
 
       const colorBtnFunc = (n) => {
@@ -107,7 +109,8 @@ export default {
       }
       // columnChartData.value.push(['Year', 'Market Sensing', 'Internal', 'Actual']);
       watch(activeCard, (value) => {
-      if (value) {
+      //if (value) {
+        console.log(value);
         let currentCard = apiData.value.projectionsData.projections[value].externalKPIs;
         let currentCardPy = apiData.value.projectionsData.projections[value].impliedMarketShare;
         let currentCardHistorical = apiData.value.projectionsData.projections[value].historical;
@@ -129,8 +132,8 @@ export default {
       //   columnChartData.value.push(history);
       // }) 
       //columnChartData.value.push(currentCardHistorical.data)
-       console.log(columnChartData.value);
-      }
+       //console.log(columnChartData.value);
+      //}
     });
 
       return { chartData, chartOptions, chartOptions1, barChartData, barChartOptions, columnChartData, columnChartOptions, chartDataLoaded, apiData, PieChartData, PieChartOptions, colorBtnFunc, colorText, activeCard, activeEl}
