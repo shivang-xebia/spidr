@@ -1,6 +1,6 @@
 <script>
 import { GChart } from 'vue-google-charts'
-import {onBeforeMount, ref} from "vue";
+import {onBeforeMount, ref, watch} from "vue";
 import {invokeApi} from "../spidr/src/idpUtils";
 
 export default {
@@ -10,15 +10,36 @@ export default {
   setup() {
     const chartDataLoaded = ref(false);
     const apiData = ref([]);
-    const chartData = [
-        ['Year','Market Sensing','Internal'],
-        ['2022',32,25],
-      ]
+    const colorText = ref('');
+    const activeCard = ref(0);
+    const chartData = ref([]);
       const chartOptions= {
         //chart: {
           title: 'Projected Growth (%YoY)',
           legend: { position: 'top', maxLines: 3 },
           colors: ['#570EAA', '#8737E1']
+        //}
+      }
+      const PieChartData = [
+      ['Effort', 'Percentage'],
+      ['single', 92],
+      ['', 8]
+      ]
+      const PieChartOptions= {
+        //chart: {
+          pieHole: 0.7,
+          pieSliceTextStyle: {
+            color: '#8C8C8C',
+          },
+          legend: 'none',
+          slices: {
+            0: { color: '#8C8C8C' },
+            1: { color: 'transparent', textStyle : {color:'transparent'} }
+          },
+          chartArea: {
+            width:'100%',
+            height:'85%'
+          }
         //}
       }
       const chartOptions1= {
@@ -28,15 +49,7 @@ export default {
           colors: ['#A5A5A5', '#F8D887']
         //}
       }
-      const barChartData = [
-        ['X','Y'],
-        ['Stock Market',30],
-        ['Inflation',23],
-        ['Per capita disposable income',20],
-        ['Pandemic',15],
-        ['Consumer behaviour',7],
-        ['Loans consumption',5]
-      ]
+      const barChartData = ref([]);
       const barChartOptions= {
         //chart: {
           //title: 'Implied Market Share',
@@ -45,6 +58,7 @@ export default {
         //}
       }
 
+      //const columnChartData = ref([]);
       const columnChartData = [
       ['Year', 'Market Sensing', 'Internal', 'Actual', 'Adjusted Internal'],
       ["Nov21 - Jan22",31,36,24,32],
@@ -74,20 +88,71 @@ export default {
         console.log(apiData);
         chartDataLoaded.value = true;
       });
-      return { chartData, chartOptions, chartOptions1, barChartData, barChartOptions, columnChartData, columnChartOptions, chartDataLoaded, apiData}
+
+      const colorBtnFunc = (n) => {
+        if(n <= -20 || n >= 20) {
+          colorText.value = '#FF3429B2'; 
+          return '#FF3429B2';
+      } else if (n <= -5 || n >= 5) {
+          colorText.value = '#04BB46B2';
+          return '#04BB46B2';
+      } else if(-20 <= n <= -6 || 6 <= n <= 20){
+          colorText.value = '#FFC107B2';
+          return '#FFC107B2';
+      }
+      }
+
+      const activeEl = (ind) => {
+        activeCard.value = ind
+      }
+      // columnChartData.value.push(['Year', 'Market Sensing', 'Internal', 'Actual']);
+      watch(activeCard, (value) => {
+      if (value) {
+        let currentCard = apiData.value.projectionsData.projections[value].externalKPIs;
+        let currentCardPy = apiData.value.projectionsData.projections[value].impliedMarketShare;
+        let currentCardHistorical = apiData.value.projectionsData.projections[value].historical;
+        barChartData.value = [
+        ['X','Y'],
+        ['Stock Market',currentCard['Stock market']],
+        ['Inflation',currentCard['Inflation']],
+        ['Per capita disposable income',currentCard['Per-capita disposable income']],
+        ['Pandemic',currentCard['Pandemic']],
+        ['Consumer behaviour',currentCard['Consumer behaviour']],
+        ['Loans consumption',currentCard['Loans consumption']]
+      ]
+      chartData.value = [
+        ['','Implied','PyActual'],
+        ['',currentCardPy['implied'],currentCardPy['pyActual']],
+      ]
+      // columnChartData.value.push(['Year', 'Market Sensing', 'Internal', 'Actual']);
+      // currentCardHistorical.data.foreach((history) => {
+      //   columnChartData.value.push(history);
+      // }) 
+      //columnChartData.value.push(currentCardHistorical.data)
+       console.log(columnChartData.value);
+      }
+    });
+
+      return { chartData, chartOptions, chartOptions1, barChartData, barChartOptions, columnChartData, columnChartOptions, chartDataLoaded, apiData, PieChartData, PieChartOptions, colorBtnFunc, colorText, activeCard, activeEl}
   }
 }
 </script>
 <template>
-<v-container>
-  <div v-if="chartDataLoaded === false">Loading...</div>
-  <div v-if="chartDataLoaded === true">Loaded</div>
+  <v-container v-if="!chartDataLoaded">
+  <v-progress-circular
+      indeterminate
+      color="#7823DC"
+    ></v-progress-circular>
+  </v-container>
+<v-container v-else>
+  <!-- <div v-if="chartDataLoaded === false">Loading...</div>
+  <div v-if="chartDataLoaded === true">Loaded</div> -->
   <v-card class="mb-3">
   <v-row>
     <v-col cols="12" sm="2">
       <v-select
           label="2023"
-          :items="['2020', '2021', '2022','2023']"
+          :items="['2022','2023']"
       ></v-select>
     </v-col>
     <v-col cols="12" sm="2">
@@ -149,49 +214,59 @@ export default {
 </v-row>
 
 <v-divider/>
-<v-divider/>
 
-  <v-row>
-    <v-col v-if="!chartDataLoaded"></v-col>
-    <v-col v-else cols="12" sm="3" v-for="data in apiData.projectionsData.projections">
-      <v-card >
+  <v-row class="mt-3">
+    <v-col cols="12" sm="3" v-if="!chartDataLoaded">
+      <v-progress-circular
+      indeterminate
+      color="primary"
+    ></v-progress-circular>
+    </v-col>
+    <v-col v-else cols="12" sm="3" v-for="(data,index) in apiData.projectionsData.projections" :key="index">
+      <v-card @click="activeEl(index)" :style="(activeCard == index) ? 'border:1px solid #7823DC': '' ">
         <v-container>
           <v-row>
           <v-col cols="12" sm="6">
-            <span style="font-size:14px">Projected Period</span>
-            <h5>{{data.period}}</h5>
+            <span style="font-size:9px">Projected Period</span>
+            <h6>{{data.period}}</h6>
           </v-col>
           <v-col cols="12" sm="6">
-            <span style="font-size:14px;background: #EDEDED">{{data.lag}} Month Lag</span>
+            <span style="font-size:9px;background: #EDEDED">{{data.lag}} Month Lag</span>
           </v-col>
         </v-row>
         <v-divider/>
         <v-row>
           <v-col cols="12" sm="6">
-            <span style="font-family: graphik;font-weight: 500;font-size: 9px;line-height: 18px;">Projected Growth (%, YoY)</span>
+            <span style="font-family: graphik;font-weight: 500;font-size: 7px;line-height: 18px;">Projected Growth (%, YoY)</span>
             <div>
-              <div class="text-h3" style="color:#FF9900">{{data.marketSensing - data.internal}}</div>
+              <div :class="['text-h4']" :style="{'color':colorText}">{{data.marketSensing - data.internal+'%'}}</div>
               <span style="font-size:9px">variance</span>
               <v-divider/>
             </div>
             <v-row>
               <v-col cols="12" sm="6">
                 <h3>{{data.marketSensing}}</h3>
-                <div class="text-caption" style="font-size:9px !important">Market Sensing</div>
+                <div class="text-caption" style="font-size:6px !important;line-height: 8px;">Market Sensing</div>
               </v-col>
               <v-col cols="12" sm="6">
                 <h3>{{data.internal}}</h3>
-                <div class="text-caption" style="font-size:9px !important">Internal Forecast</div>
+                <div class="text-caption" style="font-size:6px !important;line-height: 8px;">Internal Forecast</div>
               </v-col>
             </v-row>
-            <v-btn variant="outlined" color="warning" rounded="pill" class="mt-3">Watch List</v-btn>
+            <v-btn variant="outlined" :color="colorBtnFunc(data.marketSensing - data.internal)" rounded="pill" class="mt-3">Watch</v-btn>
           </v-col>
           <v-col cols="12" sm="6">
-            <span style="font-family: graphik;font-weight: 500;font-size: 9px;line-height: 18px;">Implied Market Share</span>
+            <span style="font-family: graphik;font-weight: bold;font-size: 9px;line-height: 18px;">ML Model Accuracy</span>
             <GChart
-              type="ColumnChart"
-              :data="chartData"
-              :options="chartOptions1"
+              type="PieChart"
+              :data="[
+      ['Effort', 'Percentage'],
+      ['single', data.modelAccuracy.current],
+      ['', 100-data.modelAccuracy.current]
+      ]"
+              :options="PieChartOptions"
+              height="100px"
+              width="100px"
             />
           </v-col>
         </v-row>
@@ -334,11 +409,12 @@ export default {
       </v-card>
     </v-col> -->
   </v-row>
+  <h4 class="mt-4 mb-4">More details for Apr 23 - Jun 23 </h4>
+  <v-divider class="mb-4"/>
   <v-row>
     <v-col cols="12" sm="4">
       <v-card>
         <v-container>
-          <h4>More details for Apr 23 - Jun 23 </h4>
           <p>External KPIs</p>
           <GChart
             type="BarChart"
@@ -348,7 +424,19 @@ export default {
       </v-container>
     </v-card>
     </v-col>
-    <v-col cols="12" sm="8">
+    <v-col cols="12" sm="2">
+      <v-card>
+        <v-container>
+        <p style="font-size: 11px;">Implied Market Share</p>
+        <GChart
+            type="ColumnChart"
+            :data="chartData"
+            :options="chartOptions1"
+          />
+        </v-container>
+      </v-card>
+    </v-col>
+    <v-col cols="12" sm="6">
       <v-card>
         <v-container>
           <h3>Historic vs Actuals (%, YoY)</h3>
