@@ -12,6 +12,7 @@ export default {
     const apiData = ref([]);
     const activeCard = ref();
     const chartData = ref([]);
+    const projectionMonth = ref('');
     const chartOptions = {
       //chart: {
       title: 'Projected Growth (%YoY)',
@@ -26,7 +27,7 @@ export default {
     ]
     const PieChartOptions = {
       //chart: {
-      pieHole: 0.7,
+      pieHole: 0.6,
       pieSliceTextStyle: {
         color: '#8C8C8C',
         fontSize: '15px'
@@ -34,11 +35,11 @@ export default {
       legend: 'none',
       slices: {
         0: {color: '#8C8C8C', textStyle: {color: 'transparent'}},
-        1: {color: 'transparent', textStyle: {color: 'transparent'}}
+        1: {color: '#E6E6E6', textStyle: {color: 'transparent'}}
       },
       chartArea: {
-        width: '100%',
-        height: '85%'
+        width: '100px',
+        height: '75px'
       }
       //}
     }
@@ -95,10 +96,8 @@ export default {
     }
     onBeforeMount(async () => {
       apiData.value = await fetchMainDashboardData();
-      console.log(apiData);
       chartDataLoaded.value = true;
       activeCard.value = 0;
-      console.log('comingmount');
     });
     const colorBtnFunc = (n) => {
       if (n <= -20 || n >= 20) {
@@ -111,7 +110,6 @@ export default {
     }
     const activeEl = (ind) => {
       activeCard.value = ind
-      console.log('comingactive');
     }
     // columnChartData.value.push(['Year', 'Market Sensing', 'Internal', 'Actual']);
     watch(activeCard, (value) => {
@@ -120,6 +118,7 @@ export default {
       let currentCard = _.get(apiData, `value.${value}.externalKPIs`);
       let currentCardPy = _.get(apiData, `value.${value}.impliedMarketShare`);
       let currentCardHistorical = _.get(apiData, `value.${value}.historical`);
+      projectionMonth.value = _.get(apiData, `value.${value}.period`);
       barChartData.value = [
         ['X', 'Y'],
         ['Stock Market', currentCard['Stock market']],
@@ -155,7 +154,8 @@ export default {
       PieChartOptions,
       colorBtnFunc,
       activeCard,
-      activeEl
+      activeEl,
+      projectionMonth
     }
   }
 }
@@ -247,15 +247,16 @@ export default {
           <v-card @click="activeEl(index)" :style="(activeCard == index) ? 'border:1px solid #7823DC': '' ">
             <v-container>
               <v-row>
-                <v-col cols="12" sm="6"><span style="font-size:9px">Projected Period</span>            <h6>
-                  {{ data.period }}</h6></v-col>
-                <v-col cols="12" sm="6"><span style="font-size:9px;background: #EDEDED">{{ data.lag }} Month Lag</span>
+                <v-col cols="12" sm="6"><span style="font-size:12px;color:#9291A5">Projected Period</span>            
+                  <h6 style="font-weight: bold;">{{ data.period }}</h6></v-col>
+                <v-col cols="12" sm="6" class="text-center">
+                  <h6 style="font-size:9px;background: #EDEDED">{{ data.lag }} Month Lag</h6>
                 </v-col>
               </v-row>
               <v-divider/>
               <v-row>
-                <v-col cols="12" sm="6"><span
-                    style="font-family: graphik;font-weight: 500;font-size: 7px;line-height: 18px;">Projected Growth (%, YoY)</span>
+                <v-col cols="12" sm="6">
+                  <h6>Projected Growth (%, YoY)</h6>
                   <div>
                     <div :class="['text-h4']" :style="{'color': colorBtnFunc(data.variance)}">
                       {{ `${data.variance}%` }}
@@ -265,19 +266,16 @@ export default {
                   </div>
                   <v-row>
                     <v-col cols="12" sm="6"><h3>{{ data.marketSensing }}</h3>
-                      <div class="text-caption" style="font-size:6px !important;line-height: 8px;">Market Sensing</div>
+                      <div class="text-caption" style="font-size:8px !important;line-height: 8px;">Market Sensing</div>
                     </v-col>
                     <v-col cols="12" sm="6"><h3>{{ data.internal }}</h3>
-                      <div class="text-caption" style="font-size:6px !important;line-height: 8px;">Internal Forecast
+                      <div class="text-caption" style="font-size:8px !important;line-height: 8px;">Internal Forecast
                       </div>
                     </v-col>
                   </v-row>
-                  <v-btn variant="outlined" :color="colorBtnFunc(data.variance)" rounded="pill"
-                         class="mt-3">Watch
-                  </v-btn>
                 </v-col>
-                <v-col cols="12" sm="6"><span
-                    style="font-family: graphik;font-weight: bold;font-size: 9px;line-height: 18px;">ML Model Accuracy</span>
+                <v-col cols="12" sm="6">
+                  <h6 style="font-weight: bold">ML Model Accuracy</h6>
                   <GChart
                       type="PieChart"
                       :data="[
@@ -286,9 +284,17 @@ export default {
       ['', 100-data.modelAccuracy.current]
       ]"
                       :options="PieChartOptions"
-                      height="100px"
+                      height="50px"
                       width="100px"
                   />
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12" sm="8">
+                  <v-btn variant="outlined" :color="colorBtnFunc(data.variance)" rounded="pill" class="mt-3">
+                         Watch List
+                         <v-icon end icon="mdi-checkbox-marked-circle"></v-icon>
+                  </v-btn>
                 </v-col>
               </v-row>
             </v-container>
@@ -307,12 +313,12 @@ export default {
               :data="chartData"
               :options="chartOptions1"
             />          </v-col>        </v-row>        </v-container>      </v-card>    </v-col> -->  </v-row>
-    <h4 class="mt-4 mb-4">More details for Apr 23 - Jun 23 </h4>
+    <h3 class="mt-4 mb-4">More details for {{projectionMonth}} </h3>
     <v-divider class="mb-4"/>
     <v-row>
       <v-col cols="12" sm="4">
         <v-card>
-          <v-container><p>External KPIs</p>
+          <v-container><h4 style="font-weight:bold">Key Demand Drivers</h4>
             <GChart
                 type="BarChart"
                 :data="barChartData"
@@ -323,7 +329,7 @@ export default {
       </v-col>
       <v-col cols="12" sm="2">
         <v-card>
-          <v-container><p style="font-size: 11px;">Implied Market Share</p>
+          <v-container><h6 style="font-weight:bold">Implied Market Share</h6>
             <GChart
                 type="ColumnChart"
                 :data="chartData"
@@ -334,7 +340,8 @@ export default {
       </v-col>
       <v-col cols="12" sm="6">
         <v-card>
-          <v-container><h3>Historic vs Actuals (%, YoY)</h3>
+          <v-container>
+            <h3>Historic vs Actuals (%, YoY)</h3>
             <GChart
                 type="ColumnChart"
                 :data="columnChartData"
