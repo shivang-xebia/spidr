@@ -48,7 +48,30 @@
       <slot />
     </v-main>
     <v-main v-if="!state.isAuthenticated">
-      Wolla
+      <v-container>
+      <v-row>
+        <v-col cols="12" sm="6">
+          <v-img src="@/assets/images/login-page.png"/>
+        </v-col>
+        <v-col cols="12" sm="6">
+          <div class="text-center mb-4">
+            <h1 >KEARNEY</h1>
+            <h4 class="text-center">Sign in with Kearney Sensing Solution</h4>
+          </div>
+          <v-text-field label="Email" variant="outlined"></v-text-field>
+          <v-text-field label="Password" variant="outlined"></v-text-field>
+          <v-checkbox label="Remember Me"></v-checkbox>
+          <v-btn type="submit" block class="mt-2" color="#7823DC">Sign In</v-btn>
+          <p class="text-center mt-3 mb-3" style="color:#7823DC">Forgot Password?</p>
+          <v-divider class="mt-4 mb-2"/>
+          <v-btn variant="outlined" color="#7823DC" block class="mt-5">Sign in with SSO</v-btn>  
+          <v-divider class="mt-9"/>
+          <div class="text-right" style="bottom: 5px;position: absolute;right: 1px;">
+            <p>Copyright @ Kearney 2023</p>
+          </div>     
+        </v-col>
+      </v-row>
+    </v-container>
     </v-main>
   </v-app>
 </template>
@@ -104,3 +127,9 @@ export default defineComponent({
 
 // import HelloWorld from '@/components/HelloWorld.vue'
 </script>
+<style>
+@font-face {
+  font-family: Graphik-regular;
+  src: url('@/assets/fonts/Graphik-Regular.otf');
+}
+</style>

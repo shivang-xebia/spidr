@@ -14,7 +14,7 @@ export function getIndentityPoolId(){
   return idpData.identityPoolId;
 }
 
-const configureAuth = ({region, userPoolId, userPoolWebClientId, oauthDomain, redirectSignIn, redirectSignOut})=> {
+const configureAuth = ({region, userPoolId, userPoolWebClientId, oauthDomain, redirectSignIn, redirectSignOut, clientId})=> {
   Amplify.configure({
     "aws_project_region": region,
     "aws_cognito_region": region,
@@ -27,7 +27,7 @@ const configureAuth = ({region, userPoolId, userPoolWebClientId, oauthDomain, re
           "email",
           "openid",
           "profile",
-          "tenant/client1"
+          `tenant/${clientId}`
         ],
         "redirectSignIn": redirectSignIn,
         "redirectSignOut": redirectSignOut,

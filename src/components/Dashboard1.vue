@@ -43,10 +43,10 @@ export default {
           }
         //}
       }
-      chartData.value = [
-        ['','Implied','PyActual'],
-        ['',34,28],
-      ]
+      // chartData.value = [
+      //   ['','Implied','PyActual'],
+      //   ['',34,28],
+      // ]
       const chartOptions1= {
         //chart: {
           //title: 'Implied Market Share',
@@ -54,15 +54,16 @@ export default {
           colors: ['#A5A5A5', '#F8D887']
         //}
       }
-      const barChartData  = [
-        ['X','Y'],
-        ['Stock Market',50],
-        ['Inflation',40],
-        ['Per capita disposable income',30],
-        ['Pandemic',18],
-        ['Consumer behaviour',10],
-        ['Loans consumption',5]
-      ];
+      const barChartData = ref([]);
+      // const barChartData  = [
+      //   ['X','Y'],
+      //   ['Stock Market',50],
+      //   ['Inflation',40],
+      //   ['Per capita disposable income',30],
+      //   ['Pandemic',18],
+      //   ['Consumer behaviour',10],
+      //   ['Loans consumption',5]
+      // ];
       const barChartOptions= {
         //chart: {
           //title: 'Implied Market Share',
@@ -97,10 +98,11 @@ export default {
       }
 
       onBeforeMount(async () => {
-        apiData.value = await invokeApi('apidatacleint2');
+        apiData.value = await invokeApi('maindashboard');
         console.log(apiData);
         chartDataLoaded.value = true;
         activeCard.value = 0;
+        console.log('comingmount');
       });
 
       const colorBtnFunc = (n) => {
@@ -118,35 +120,36 @@ export default {
 
       const activeEl = (ind) => {
         activeCard.value = ind
+        console.log('comingactive');
       }
       // columnChartData.value.push(['Year', 'Market Sensing', 'Internal', 'Actual']);
-    //   watch(activeCard, (value) => {
-    //   //if (value) {
-    //     console.log(value);
-    //     let currentCard = apiData.value.projectionsData.projections[value].externalKPIs;
-    //     let currentCardPy = apiData.value.projectionsData.projections[value].impliedMarketShare;
-    //     let currentCardHistorical = apiData.value.projectionsData.projections[value].historical;
-    //     barChartData.value = [
-    //     ['X','Y'],
-    //     ['Stock Market',currentCard['Stock market']],
-    //     ['Inflation',currentCard['Inflation']],
-    //     ['Per capita disposable income',currentCard['Per-capita disposable income']],
-    //     ['Pandemic',currentCard['Pandemic']],
-    //     ['Consumer behaviour',currentCard['Consumer behaviour']],
-    //     ['Loans consumption',currentCard['Loans consumption']]
-    //   ]
-    //   chartData.value = [
-    //     ['','Implied','PyActual'],
-    //     ['',currentCardPy['implied'],currentCardPy['pyActual']],
-    //   ]
-    //   // columnChartData.value.push(['Year', 'Market Sensing', 'Internal', 'Actual']);
-    //   // currentCardHistorical.data.foreach((history) => {
-    //   //   columnChartData.value.push(history);
-    //   // }) 
-    //   //columnChartData.value.push(currentCardHistorical.data)
-    //    //console.log(columnChartData.value);
-    //   //}
-    // });
+      watch(activeCard, (value) => {
+      //if (value) {
+        console.log(value);
+        let currentCard = apiData.value.projectionsData.projections[value].externalKPIs;
+        let currentCardPy = apiData.value.projectionsData.projections[value].impliedMarketShare;
+        let currentCardHistorical = apiData.value.projectionsData.projections[value].historical;
+        barChartData.value = [
+        ['X','Y'],
+        ['Stock Market',currentCard['Stock market']],
+        ['Inflation',currentCard['Inflation']],
+        ['Per capita disposable income',currentCard['Per-capita disposable income']],
+        ['Pandemic',currentCard['Pandemic']],
+        ['Consumer behaviour',currentCard['Consumer behaviour']],
+        ['Loans consumption',currentCard['Loans consumption']]
+      ]
+      chartData.value = [
+        ['','Implied','PyActual'],
+        ['',currentCardPy['implied'],currentCardPy['pyActual']],
+      ]
+      // columnChartData.value.push(['Year', 'Market Sensing', 'Internal', 'Actual']);
+      // currentCardHistorical.data.foreach((history) => {
+      //   columnChartData.value.push(history);
+      // }) 
+      //columnChartData.value.push(currentCardHistorical.data)
+       //console.log(columnChartData.value);
+      //}
+    });
 
       return { chartData, chartOptions, chartOptions1, barChartData, barChartOptions, columnChartData, columnChartOptions, chartDataLoaded, apiData, PieChartData, PieChartOptions, colorBtnFunc, colorText, activeCard, activeEl}
   }
@@ -231,13 +234,14 @@ export default {
 <v-divider/>
 
   <v-row class="mt-3">
-    <v-col cols="12" sm="3" v-if="!chartDataLoaded">
+    <v-col cols="12" sm="3" v-if="!chartDataLoaded && !apiData.projectionsData.length">
       <v-progress-circular
       indeterminate
       color="primary"
     ></v-progress-circular>
     </v-col>
-    <v-col v-else cols="12" sm="3" v-for="(data,index) in apiData.projectionsData.projections" :key="index">
+    <template v-else>
+    <v-col  cols="12" sm="3" v-for="(data,index) in apiData.projectionsData.projections" :key="index">
       <v-card @click="activeEl(index)" :style="(activeCard == index) ? 'border:1px solid #7823DC': '' ">
         <v-container>
           <v-row>
@@ -288,6 +292,7 @@ export default {
         </v-container>
       </v-card>
     </v-col>
+  </template>
     <!-- <v-col cols="12" sm="3">
       <v-card>
         <v-container>
