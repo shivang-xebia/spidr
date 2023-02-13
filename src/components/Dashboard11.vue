@@ -2,32 +2,24 @@
 import {onBeforeMount, ref, watch} from "vue";
 import _ from "lodash";
 import fetchMainDashboardData from "../api/fetchMainDashboardData";
-import Datepicker from 'vue3-datepicker'
 
 export default {
   components: {
-    GChart,
-    Datepicker
+    GChart
   },
   setup() {
-
-    // initializing data properties -- start
     const chartDataLoaded = ref(false);
     const apiData = ref([]);
     const activeCard = ref();
     const chartData = ref([]);
     const projectionMonth = ref('');
-    const first_quarter = ref(true);
-    const second_quarter = ref(false);
-    const third_quarter = ref(false);
-    const fourth_quarter = ref(false);
-    const btnText = ref('');
-    const show_array = ref(['show','hide','hide','hide']);
-    const picked = ref(new Date())
-
-    // initializing data properties -- end 
-
-    // Model accuracy pie chart data -- start
+    const chartOptions = {
+      //chart: {
+      title: 'Projected Growth (%YoY)',
+      legend: {position: 'top', maxLines: 3},
+      colors: ['#570EAA', '#8737E1']
+      //}
+    }
     const PieChartData = [
       ['Effort', 'Percentage'],
       ['single', 92],
@@ -51,69 +43,81 @@ export default {
       }
       //}
     }
-    // Model accuracy pie chart data -- end
-
-
-    //Implied Market Share Chart Options -- start
-
-    const impliedMarketChartOptions = {
+    // chartData.value = [
+    //   ['','Implied','PyActual'],
+    //   ['',34,28],
+    // ]
+    const chartOptions1 = {
       //chart: {
       //title: 'Implied Market Share',
       legend: {position: 'bottom'},
       colors: ['#A5A5A5', '#F8D887']
       //}
     }
-    //Implied Market Share Chart Options -- end
-
-    // bar chart data --start
     const barChartData = ref([]);
+    // const barChartData  = [
+    //   ['X','Y'],
+    //   ['Stock Market',50],
+    //   ['Inflation',40],
+    //   ['Per capita disposable income',30],
+    //   ['Pandemic',18],
+    //   ['Consumer behaviour',10],
+    //   ['Loans consumption',5]
+    // ];
     const barChartOptions = {
+      //chart: {
+      //title: 'Implied Market Share',
       legend: {position: 'bottom'},
       colors: ['#646F79']
+      //}
     }
-    // bar chart data --end
-
-    //column chart data -- start
-    const columnChartData = ref([]);
+    //const columnChartData = ref([]);
+    const columnChartData = [
+      ['Year', 'Market Sensing', 'Internal', 'Actual', 'Adjusted Internal'],
+      ["Nov21 - Jan22", 31, 36, 24, 32],
+      ["Dec21 - Feb22", 21, 25, 16, 20],
+      ["Jan22 - Mar22", 8, 18, 11, 14],
+      ["Feb22 - Apr22", 17, 27, 9, 16],
+      ["Mar22 - May22", 9, 25, 14, 13],
+      ["Apr22 - Jun22", 12, 29, 24, 32],
+      ["May22 - Jul22", 17, 25, 21, 13],
+      ["Jun22 - Aug22", 23, 12, 19, 32],
+      ["Jul22 - Sep22", 9, 36, 12, 22],
+      ["Aug22 - Oct22", 13, 31, 14, 12],
+      ["Sep22 - Nov22", 18, 36, 34, 22],
+      ["Oct22 - Dec22", 10, 32, 21, 35],
+    ]
     const columnChartOptions = {
+      //chart: {
+      //title: 'Implied Market Share',
       legend: {position: 'top'},
       colors: ['#570EAA', '#787878', '#C8A5F0', '#F4BE37']
+      //}
     }
-    //column chart data -- end
-
     onBeforeMount(async () => {
       apiData.value = await fetchMainDashboardData();
       chartDataLoaded.value = true;
       activeCard.value = 0;
     });
-
-    //determine color of variance number -- start
     const colorBtnFunc = (n) => {
       if (n <= -20 || n >= 20) {
-        btnText.value = 'Review';
         return '#FF3429B2';
-      } else if (n >= -5 || n <= 5) {
-        btnText.value = 'No Action';
-        return '#04BB46';
+      } else if (n <= -5 || n >= 5) {
+        return '#04BB46B2';
       } else if (-20 <= n <= -6 || 6 <= n <= 20) {
-        btnText.value = 'Watch List';
         return '#FFC107B2';
       }
     }
-    //determine color of variance number -- end
-
     const activeEl = (ind) => {
       activeCard.value = ind
     }
-    
-    // watchers -- start 
+    // columnChartData.value.push(['Year', 'Market Sensing', 'Internal', 'Actual']);
     watch(activeCard, (value) => {
-      columnChartData.value = [];
-    
+      //if (value) {
+      console.log(value);
       let currentCard = _.get(apiData, `value.${value}.externalKPIs`);
       let currentCardPy = _.get(apiData, `value.${value}.impliedMarketShare`);
       let currentCardHistorical = _.get(apiData, `value.${value}.historical`);
-      let historicalIdentifiers = currentCardHistorical.identifiers; 
       projectionMonth.value = _.get(apiData, `value.${value}.period`);
       barChartData.value = [
         ['X', 'Y'],
@@ -128,29 +132,18 @@ export default {
         ['', 'Implied', 'PyActual'],
         ['', currentCardPy['implied'], currentCardPy['pyActual']],
       ]
-      columnChartData.value.push(historicalIdentifiers);
-      _.forEach(currentCardHistorical.data, function(data){
-        columnChartData.value.push(data);
-      })
+      // columnChartData.value.push(['Year', 'Market Sensing', 'Internal', 'Actual']);
+      // currentCardHistorical.data.foreach((history) => {
+      //   columnChartData.value.push(history);
+      // })
+      //columnChartData.value.push(currentCardHistorical.data)
+      //console.log(columnChartData.value);
+      //}
     });
-    watch(first_quarter,(value) => {
-      show_array.value[0] = (value) ? 'show' : 'hide';
-    })
-    watch(second_quarter,(value) => {
-      show_array.value[1] = (value) ? 'show' : 'hide';
-    })
-    watch(third_quarter,(value) => {
-      show_array.value[2] = (value) ? 'show' : 'hide';
-    })
-    watch(fourth_quarter,(value) => {
-      show_array.value[3] = (value) ? 'show' : 'hide';
-    })
-
-    // watchers -- end
-
     return {
       chartData,
-      impliedMarketChartOptions,
+      chartOptions,
+      chartOptions1,
       barChartData,
       barChartOptions,
       columnChartData,
@@ -162,13 +155,7 @@ export default {
       colorBtnFunc,
       activeCard,
       activeEl,
-      projectionMonth,
-      first_quarter,
-      second_quarter,
-      third_quarter,
-      fourth_quarter,
-      show_array,
-      btnText
+      projectionMonth
     }
   }
 }
@@ -182,78 +169,8 @@ export default {
   </v-container>
   <v-container v-else>
     <!-- <div v-if="chartDataLoaded === false">Loading...</div>  <div v-if="chartDataLoaded === true">Loaded</div> -->
-    <v-card class="mb-3">
-      <v-row>
-        <v-col cols="12" sm="2">
-          <Datepicker
-          v-model="picker"
-          startingView="month"
-          ></Datepicker>
-        </v-col>
-        <v-col cols="12" sm="2">
-          <v-select
-              multiple
-              variant="underlined"
-              label="All Categories"
-              :items="['Cat1', 'Cat2', 'Cat3']"
-          ></v-select>
-        </v-col>
-        <v-col cols="12" sm="2">
-          <v-select
-              multiple
-              variant="underlined"
-              label="All Customers"
-              :items="['Cus1', 'Cus2', 'Cus3']"
-          ></v-select>
-        </v-col>
-        <v-col cols="12" sm="2">
-          <v-select
-              multiple
-              variant="underlined"
-              label="Geography"
-              :items="['Geo1', 'Geo2', 'Geo3']"
-          ></v-select>
-        </v-col>
-        <v-col cols="12" sm="4">
-          <v-switch label="Volume"></v-switch>
-        </v-col>
-      </v-row>
-    </v-card>
-    <v-row class="mx-auto">
-      <v-col cols="12" md="3">
-        <v-checkbox
-            label="1-3 months (Default)"
-            color="#7823DC"
-            hide-details
-            v-model="first_quarter"
-            :disabled=true
-        ></v-checkbox>
-      </v-col>
-      <v-col cols="12" md="3">
-        <v-checkbox
-            label="4-6 months"
-            color="#7823DC"
-            hide-details
-            v-model="second_quarter"
-        ></v-checkbox>
-      </v-col>
-      <v-col cols="12" md="3">
-        <v-checkbox
-            label="6-9 months"
-            color="#7823DC"
-            hide-details
-            v-model="third_quarter"
-        ></v-checkbox>
-      </v-col>
-      <v-col cols="12" md="3">
-        <v-checkbox
-            label="10-12 months"
-            color="#7823DC"
-            hide-details
-            v-model="fourth_quarter"
-        ></v-checkbox>
-      </v-col>
-    </v-row>
+
+
     <v-divider/>
     <v-row class="mt-3">
       <v-col cols="12" sm="3" v-if="!chartDataLoaded && !apiData.length">
@@ -264,7 +181,7 @@ export default {
       </v-col>
       <template v-else>
         <v-col cols="12" sm="3" v-for="(data, index) in apiData" :key="data.period">
-          <v-card @click="activeEl(index)" :style="(activeCard == index) ? 'border:1px solid #7823DC': '' " v-if="show_array[index] == 'show'">
+          <v-card @click="activeEl(index)" :style="(activeCard == index) ? 'border:1px solid #7823DC': '' ">
             <v-container>
               <v-row>
                 <v-col cols="12" sm="6"><span style="font-size:12px;color:#9291A5">Projected Period</span>
@@ -274,7 +191,7 @@ export default {
                 </v-col>
               </v-row>
               <v-divider/>
-              <v-row style="height:170px">
+              <v-row>
                 <v-col cols="12" sm="6">
                   <h6>Projected Growth (%, YoY)</h6>
                   <div>
@@ -299,10 +216,10 @@ export default {
                   <GChart
                       type="PieChart"
                       :data="[
-                                ['Effort', 'Percentage'],
-                                ['single', data.modelAccuracy.current],
-                                ['', 100-data.modelAccuracy.current]
-                              ]"
+      ['Effort', 'Percentage'],
+      ['single', data.modelAccuracy.current],
+      ['', 100-data.modelAccuracy.current]
+      ]"
                       :options="PieChartOptions"
                       height="50px"
                       width="100px"
@@ -310,17 +227,67 @@ export default {
                 </v-col>
               </v-row>
               <v-row>
-                <v-col cols="12" sm="12">
-                  <v-btn v-if="data.variance <= -20 || data.variance >= 20" prepend-icon="mdi-alert-circle" variant="outlined" :color="colorBtnFunc(data.variance)" rounded="pill" class="mt-3">
-                    Review<v-icon end icon="mdi-chevron-right"></v-icon>
+                <v-col cols="12" sm="8">
+                  <v-btn variant="outlined" :color="colorBtnFunc(data.variance)" rounded="pill" class="mt-3">
+                         Watch List
+                         <v-icon end icon="mdi-checkbox-marked-circle"></v-icon>
                   </v-btn>
-                  <v-btn v-else-if="data.variance >= -5 || data.variance <= 5" prepend-icon="mdi-circle" variant="outlined" :color="colorBtnFunc(data.variance)" rounded="pill" class="mt-3">
-                    No Action
-                    <v-icon end icon="mdi-chevron-right"></v-icon>
-                  </v-btn>
-                  <v-btn v-else-if="-20 <= data.variance >= -6 || 6 <= data.variance <= 20" prepend-icon="mdi-circle" variant="outlined" :color="colorBtnFunc(data.variance)" rounded="pill" class="mt-3">
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="3" v-for="(data, index) in apiData" :key="data.period">
+          <v-card @click="activeEl(index)" :style="(activeCard == index) ? 'border:1px solid #7823DC': '' ">
+            <v-container>
+              <v-row>
+                <v-col cols="12" sm="6"><span style="font-size:12px;color:#9291A5">Projected Period</span>
+                  <h6 style="font-weight: bold;">{{ data.period }}</h6></v-col>
+                <v-col cols="12" sm="6" class="text-center">
+                  <h6 style="font-size:9px;background: #EDEDED">{{ data.lag }} Month Lag</h6>
+                </v-col>
+              </v-row>
+              <v-divider/>
+              <v-row>
+                <v-col cols="12" sm="6">
+                  <h6>Projected Growth (%, YoY)</h6>
+                  <div>
+                    <div :class="['text-h4']" :style="{'color': colorBtnFunc(data.variance)}">
+                      {{ `${data.variance}%` }}
+                    </div>
+                    <span style="font-size:9px">variance</span>
+                    <v-divider/>
+                  </div>
+                  <v-row>
+                    <v-col cols="12" sm="6"><h3>{{ data.marketSensing }}</h3>
+                      <div class="text-caption" style="font-size:8px !important;line-height: 8px;">Market Sensing</div>
+                    </v-col>
+                    <v-col cols="12" sm="6"><h3>{{ data.internal }}</h3>
+                      <div class="text-caption" style="font-size:8px !important;line-height: 8px;">Internal Forecast
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <h6 style="font-weight: bold">ML Model Accuracy</h6>
+                  <GChart
+                      type="PieChart"
+                      :data="[
+      ['Effort', 'Percentage'],
+      ['single', data.modelAccuracy.current],
+      ['', 100-data.modelAccuracy.current]
+      ]"
+                      :options="PieChartOptions"
+                      height="50px"
+                      width="100px"
+                  />
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12" sm="8">
+                  <v-btn variant="outlined" :color="colorBtnFunc(data.variance)" rounded="pill" class="mt-3">
                     Watch List
-                         <v-icon end icon="mdi-chevron-right"></v-icon>
+                    <v-icon end icon="mdi-checkbox-marked-circle"></v-icon>
                   </v-btn>
                 </v-col>
               </v-row>
@@ -330,53 +297,16 @@ export default {
       </template>    <!-- <v-col cols="12" sm="3">      <v-card>        <v-container>          <v-row>          <v-col cols="12" sm="6">            <span style="font-size:14px">Projected Period</span>            <h5>Apr 23 - Jun 23</h5>          </v-col>          <v-col cols="12" sm="6">            <span style="font-size:14px;background: #EDEDED">4-6 Month Lag</span>          </v-col>        </v-row>        <v-divider/>        <v-row>          <v-col cols="12" sm="6">            <span style="font-family: graphik;font-weight: 500;font-size: 9px;line-height: 18px;">Projected Growth (%, YoY)</span>            <div>              <div class="text-h3" style="color:#FF9900">-13%</div>              <span style="font-size:9px">variance</span>              <v-divider/>            </div>            <v-row>              <v-col cols="12" sm="6">                <h3>-5%</h3>                <div class="text-caption" style="font-size:9px !important">Market Sensing</div>              </v-col>              <v-col cols="12" sm="6">                <h3>8%</h3>                <div class="text-caption" style="font-size:9px !important">Internal Forecast</div>              </v-col>            </v-row>            <v-btn variant="outlined" color="#FFB8B8" rounded="pill" class="mt-3">Reviewed</v-btn>          </v-col>          <v-col cols="12" sm="6">            <span style="font-family: graphik;font-weight: 500;font-size: 9px;line-height: 18px;">Implied Market Share</span>            <GChart
               type="ColumnChart"
               :data="chartData"
-              :options="impliedMarketChartOptions"
+              :options="chartOptions1"
             />          </v-col>        </v-row>        </v-container>      </v-card>    </v-col>    <v-col cols="12" sm="3">      <v-card>        <v-container>          <v-row>          <v-col cols="12" sm="6">            <span style="font-size:14px">Projected Period</span>            <h5>Jul 23 - Sep 23</h5>          </v-col>          <v-col cols="12" sm="6">            <span style="font-size:14px;background: #EDEDED">7-9 Month Lag</span>          </v-col>        </v-row>        <v-divider/>        <v-row>          <v-col cols="12" sm="6">            <span style="font-family: graphik;font-weight: 500;font-size: 9px;line-height: 18px;">Projected Growth (%, YoY)</span>            <div>              <div class="text-h3" style="color:#04BB46">3%</div>              <span style="font-size:9px">variance</span>              <v-divider/>            </div>            <v-row>              <v-col cols="12" sm="6">                <h3>22%</h3>                <div class="text-caption" style="font-size:9px !important">Market Sensing</div>              </v-col>              <v-col cols="12" sm="6">                <h3>19%</h3>                <div class="text-caption" style="font-size:9px !important">Internal Forecast</div>              </v-col>            </v-row>            <v-btn variant="outlined" color="success" rounded="pill" class="mt-3">No Action</v-btn>          </v-col>          <v-col cols="12" sm="6">            <span style="font-family: graphik;font-weight: 500;font-size: 9px;line-height: 18px;">Implied Market Share</span>            <GChart
               type="ColumnChart"
               :data="chartData"
-              :options="impliedMarketChartOptions"
+              :options="chartOptions1"
             />          </v-col>        </v-row>        </v-container>      </v-card>    </v-col>    <v-col cols="12" sm="3">      <v-card>        <v-container>          <v-row>          <v-col cols="12" sm="6">            <span style="font-size:14px">Projected Period</span>            <h5>Oct 23 - Dec 23</h5>          </v-col>          <v-col cols="12" sm="6">            <span style="font-size:14px;background: #EDEDED">10-12 Month Lag</span>          </v-col>        </v-row>        <v-divider/>        <v-row>          <v-col cols="12" sm="6">            <span style="font-family: graphik;font-weight: 500;font-size: 9px;line-height: 18px;">Projected Growth (%, YoY)</span>            <div>              <div class="text-h3" style="color:#04BB46">2%</div>              <span style="font-size:9px">variance</span>              <v-divider/>            </div>            <v-row>              <v-col cols="12" sm="6">                <h3>16%</h3>                <div class="text-caption" style="font-size:9px !important">Market Sensing</div>              </v-col>              <v-col cols="12" sm="6">                <h3>14%</h3>                <div class="text-caption" style="font-size:9px !important">Internal Forecast</div>              </v-col>            </v-row>            <v-btn variant="outlined" color="success" rounded="pill" class="mt-3">No Action</v-btn>          </v-col>          <v-col cols="12" sm="6">            <span style="font-family: graphik;font-weight: 500;font-size: 9px;line-height: 18px;">Implied Market Share</span>            <GChart
               type="ColumnChart"
               :data="chartData"
-              :options="impliedMarketChartOptions"
+              :options="chartOptions1"
             />          </v-col>        </v-row>        </v-container>      </v-card>    </v-col> -->  </v-row>
-    <h3 class="mt-4 mb-4">More details for {{projectionMonth}} </h3>
     <v-divider class="mb-4"/>
-    <v-row>
-      <v-col cols="12" sm="4">
-        <v-card>
-          <v-container><h4 style="font-weight:bold">Key Demand Drivers</h4>
-            <GChart
-                type="BarChart"
-                :data="barChartData"
-                :options="barChartOptions"
-            />
-          </v-container>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="2">
-        <v-card>
-          <v-container><h6 style="font-weight:bold">Implied Market Share</h6>
-            <GChart
-                type="ColumnChart"
-                :data="chartData"
-                :options="impliedMarketChartOptions"
-            />
-          </v-container>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="6">
-        <v-card>
-          <v-container>
-            <h3>Historic vs Actuals (%, YoY)</h3>
-            <GChart
-                type="ColumnChart"
-                :data="columnChartData"
-                :options="columnChartOptions"
-            />
-          </v-container>
-        </v-card>
-      </v-col>
-    </v-row>
   </v-container>
 </template>

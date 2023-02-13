@@ -17,7 +17,8 @@ setup(){
 </script>
 <template>
     <v-container>
-        <v-row>
+        <HeatMap :data="heatMap1"/>
+        <!-- <v-row>
             <v-col cols="12" sm="6">
                 <v-card>
                     <v-container>
@@ -56,6 +57,6 @@ setup(){
                     </v-container>
                 </v-card>
             </v-col>
-        </v-row>
+        </v-row> -->
     </v-container>
 </template>

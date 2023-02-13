@@ -1,6 +1,7 @@
 <script>
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, onBeforeMount } from 'vue';
 import { GChart } from 'vue-google-charts'
+import heatMap from '@/api/heatMap';
 
 export default defineComponent({
   props: {
@@ -14,6 +15,8 @@ export default defineComponent({
     const colorBtn = ref('2');
     const wrapper = ref('wrapper');
     const dialog = ref(false);
+    const apiData = ref([]);
+    const dataLoaded = ref(false);
 
     for(let i=0;i<=props.data.length;i++){
       if(props.data[i] && props.data[i].length ==5){
@@ -59,19 +62,53 @@ export default defineComponent({
           colors: ['#570EAA', '#787878', '#C8A5F0', '#F4BE37']
         //}
       }
+      onBeforeMount(async () => {
+      apiData.value = await heatMap();
+      dataLoaded.value = true;
+      console.log(apiData.value);
+      });
 
-  return { colorBtnFunc, colorBtn, wrapper, openChart, dialog, chartData, chartOptions }
+  return { colorBtnFunc, colorBtn, wrapper, openChart, dialog, chartData, chartOptions, dataLoaded, apiData }
   }
 })
   
 
 </script>
 <template>
-  <div :class="wrapper">
-    <template v-for="num in data">
+  <v-row v-if="!dataLoaded">
+    <v-progress-circular
+        indeterminate
+        color="#7823DC"
+    ></v-progress-circular>
+    </v-row>
+    <v-row v-else>
+    <v-col cols="12" sm="6" v-for="data in apiData">
+      <v-card>
+        <v-container>
+          <h3>{{data.period }}</h3>
+          <v-divider class="mb-2"/>
+          <div :class="wrapper">
+            <div class="box" v-for="value in data.identifiers.x">
+              {{ value }}
+            </div>
+            <template v-for="num in data.data">
+              <div class="box" v-for="n in num" @click="openChart"><v-btn  :color="colorBtnFunc(n)" width="70px">{{ n+'%' }}</v-btn></div>
+          </template>
+          </div>        
+        </v-container>
+      </v-card>
+    </v-col>
+  </v-row>
+  <!-- <div :class="wrapper">
+    <template v-if="!dataLoaded">
+  </template>
+  <template v-else-if="apiData">
+    <template v-for="num in apiData">
+      {{ num.data }}
       <div class="box" v-for="n in num" @click="openChart"><v-btn  :color="colorBtnFunc(n)">{{ n+'%' }}</v-btn></div>
     </template>
-  </div>
+  </template>
+  </div> -->
 <!-- <v-row v-for="num in data">
 <v-col v-for="n in num" cols="6" sm="2" style="padding-right:4px;padding-left:4px;">
 <v-btn width="70px" height="46px" :color="colorBtnFunc(n)">{{ n+'%' }}</v-btn>

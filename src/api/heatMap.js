@@ -10,12 +10,14 @@ export default async function (){
       }, 1300)
     })
   }
-  const data = await invokeApi('maindashboard'); // apidatacleint2 //maindashboard
-  let dataForUi = _.get(data, "projectionsData.projections", [])
-  dataForUi = _.map(dataForUi, v => ({
-    ...v,
-    variance: v.marketSensing - v.internal
-  }))
+  const data = await invokeApi('heatmap'); // apidatacleint2 //maindashboard
+  //console.log(data);
+  let dataForUi = _.get(data, "data", [])
+  console.log(dataForUi);
+//   dataForUi = _.map(dataForUi, v => ({
+//     ...v,
+//     variance: v.marketSensing - v.internal
+//   }))
   cachedData = dataForUi;
   return dataForUi;
 }

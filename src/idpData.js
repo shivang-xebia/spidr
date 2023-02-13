@@ -8,7 +8,9 @@ const idpData = {
   redirectSignOut: "http://localhost:3000",//"https://d3bbe8cr3npstt.cloudfront.net",
   apiPrefix: "07aloatfsb.execute-api.us-east-1.amazonaws.com",
   stage: "blank",
-  clientId: "51b72fae-8eac-4bce-98b8-6989c21767ac"
+  clientId: "51b72fae-8eac-4bce-98b8-6989c21767ac",
+  clientDisplayName: "ACME Inc.",
+  colorTheme: "teal"
 }
 
 export default idpData;
